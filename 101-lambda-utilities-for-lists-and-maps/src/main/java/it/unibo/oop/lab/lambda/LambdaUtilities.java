@@ -2,6 +2,7 @@ package it.unibo.oop.lab.lambda;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,10 +66,17 @@ public final class LambdaUtilities {
      *         otherwise.
      */
     public static <T> List<Optional<T>> optFilter(final List<T> list, final Predicate<T> pre) {
-        /*
-         * Suggestion: consider Optional.filter
-         */
-        return emptyList();
+        final List<Optional<T>> l = new ArrayList(list.size());
+        for(final T t : list) {
+            final Optional<T> newOp;
+            if(pre.test(t)) {
+                newOp = Optional.of(t);
+            }else {
+                newOp = Optional.empty();
+            }
+            l.add(newOp);
+        }
+        return l;
     }
 
     /**
@@ -86,10 +94,18 @@ public final class LambdaUtilities {
      *         based on the mapping done by the function
      */
     public static <R, T> Map<R, Set<T>> group(final List<T> list, final Function<T, R> op) {
+        final Map<R, Set<T>> m1 = new HashMap<>();
+        for(final T t : list) {
+            m1.merge(op.apply(t), Set.of(t),(x,y) -> {
+                final Set<T> set2 = new HashSet(x);
+                set2.addAll(y);
+                return set2;
+            });
+        }
         /*
          * Suggestion: consider Map.merge
          */
-        return emptyMap();
+        return m1;
     }
 
     /**
@@ -107,12 +123,17 @@ public final class LambdaUtilities {
      *         by the supplier
      */
     public static <K, V> Map<K, V> fill(final Map<K, Optional<V>> map, final Supplier<V> def) {
+        final Map <K, V> m = new HashMap<>();
+        final Set<Map.Entry<K, Optional<V>>> set = map.entrySet();
+        for(final Map.Entry<K, Optional<V>> e : set) {
+            m.put(e.getKey(), e.getValue().orElseGet(def));
+        }
         /*
          * Suggestion: consider Optional.orElse
          *
          * Keep in mind that a map can be iterated through its forEach method
          */
-        return emptyMap();
+        return m;
     }
 
     /**
